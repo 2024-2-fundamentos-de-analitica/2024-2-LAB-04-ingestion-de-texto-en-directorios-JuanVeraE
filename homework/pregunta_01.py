@@ -71,3 +71,49 @@ def pregunta_01():
 
 
     """
+    import os
+    import pandas as pd
+    import zipfile
+
+    # Ruta del archivo zip y las carpetas
+    zip_path = "files/input.zip"
+    output_folder = "files/output"
+    input_folder = "files/input"
+
+    # Descomprimir el archivo ZIP
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall("files")
+
+    # Función para procesar los archivos y crear el DataFrame
+    def create_dataset(folder):
+        data = []
+        for sentiment in ["negative", "positive", "neutral"]:
+            sentiment_folder = os.path.join(folder, sentiment).replace('\\', '/')
+            for filename in os.listdir(sentiment_folder):
+                file_path = os.path.join(sentiment_folder, filename).replace('\\', '/')
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    phrase = file.read().strip()
+                    data.append({"phrase": phrase, "target": sentiment})
+        return pd.DataFrame(data)
+
+    # Crear los DataFrames para train y test
+    train_df = create_dataset(os.path.join(input_folder, "train").replace('\\', '/'))
+    test_df = create_dataset(os.path.join(input_folder, "test").replace('\\', '/'))
+
+    # Crear la carpeta de salida si no existe
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Guardar los DataFrames en archivos CSV
+    train_df.to_csv(os.path.join(output_folder, "train_dataset.csv").replace('\\', '/'), index=False)
+    test_df.to_csv(os.path.join(output_folder, "test_dataset.csv").replace('\\', '/'), index=False)
+
+    # Crear la carpeta de salida si no existe
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Guardar los DataFrames en archivos CSV
+    train_df.to_csv(os.path.join(output_folder, "train_dataset.csv"), index=False)
+    test_df.to_csv(os.path.join(output_folder, "test_dataset.csv"), index=False)
+
+    print("Archivos 'train_dataset.csv' y 'test_dataset.csv' generados en la carpeta 'output'.")
+
+pregunta_01()
